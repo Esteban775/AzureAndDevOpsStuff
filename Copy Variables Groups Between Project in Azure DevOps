@@ -1,0 +1,27 @@
+$org = "https://dev.azure.com/orgname/"
+$projfrom = "FromProjectName"
+$groups = $(az pipelines variable-group list --organization $org --project $projfrom --query "[?contains(name, 'VarGroupName')].{Id: id}" --output tsv)
+
+foreach ($group in $groups)
+{
+az pipelines variable-group show --organization $org --project $projfrom --id $group --query "{Name: name}"
+$json = (az pipelines variable-group show --organization $org --project $projfrom --id $group --query "{Variables: variables}")
+$variables = $json | ConvertFrom-Json | Select-Object -ExpandProperty Variables
+
+$convertedJson = ""
+
+foreach ($variable in $variables.PSObject.Properties) {
+    $value = $variable.Value.value
+    if ($value -like "*;*") {
+        $value = '"' + $value + '"'
+    }
+    $convertedJson = $variable.Name + '=' + $value + ' ' + $convertedJson
+}
+Write-Output $convertedJson
+}
+
+##############################################################################################################
+
+$org = "https://dev.azure.com/orgname/"
+$projto = "ToProjectName"
+az pipelines variable-group create --org $org --project $projto --name "VarGroupName" --variables A=A B=B C=C
