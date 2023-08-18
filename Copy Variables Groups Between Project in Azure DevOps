@@ -1,3 +1,4 @@
+az login
 $org = "https://dev.azure.com/orgname/"
 $projfrom = "FromProjectName"
 $groups = $(az pipelines variable-group list --organization $org --project $projfrom --query "[?contains(name, 'VarGroupName')].{Id: id}" --output tsv)
@@ -19,6 +20,8 @@ foreach ($variable in $variables.PSObject.Properties) {
 }
 Write-Output $convertedJson
 }
+
+# Here you need to copy the output and paste it after --variales line 30 :) (for some reason if I save this output in a variable it doesn't work, I'm still firuging out why....)  
 
 ##############################################################################################################
 
